@@ -49,6 +49,7 @@ typedef void (*UartSendFunc)(void* uart_ptr, uint8_t* data, uint32_t len);
 typedef void (*UartReceiveFunc)(void* uart_ptr);
 typedef void (*UartSetBaudrateFunc)(void* uart_ptr, uint32_t baudrate);
 typedef void (*UartEnableInterruptsFunc)(void* uart_ptr);
+typedef void (*UartDisableInterruptsFunc)(void* uart_ptr);
 typedef uint8_t* (*UartGetRxBufferFunc)(void* uart_ptr);
 
 // 回调注册函数指针类型
@@ -64,6 +65,7 @@ typedef struct debug_protocol {
     UartReceiveFunc receive;                           /*!< 启动接收函数指针 */
     UartSetBaudrateFunc set_baudrate;                  /*!< 设置波特率函数指针 */
     UartEnableInterruptsFunc enable_interrupts;        /*!< 使能中断函数指针 */
+    UartDisableInterruptsFunc disable_interrupts;      /*!< 禁用中断函数指针 */
     UartGetRxBufferFunc get_rx_buffer;                 /*!< 获取接收缓冲区函数指针 */
     UartRegisterIdleCallbackFunc register_idle_callback;    /*!< 注册空闲中断回调函数指针 */
     UartRegisterErrorCallbackFunc register_error_callback;  /*!< 注册错误回调函数指针 */

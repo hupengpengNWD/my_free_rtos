@@ -83,7 +83,7 @@ void SystemClock_Config(void) {
   */
 int main(void) {
 
-    /* 当前分支：StepMotor分支 */
+    /* 当前分支：motor分支 */
     /* 通用硬件初始化 */
     HAL_Init();
     SystemClock_Config();
@@ -106,16 +106,16 @@ int main(void) {
     // drv_timer_pwm_hw_init(TIM3, 1000, 0, 2, Pwm3);  // 电机通道4，TIM3，1kHz，引脚组0
 
 
-    /* 任务初始化 */
+    /* rtos内核初始化 */
     osKernelInitialize();
     
-    // 初始化各个任务
+    /* 初始化各个任务 */ 
     maintain_task_init();  // 初始化维护任务 - 必须先初始化
     com_task_init();
     protector_task_init();
     manual_task_init();
-    // motor_task_init();
     
+    /* rtos内核启动 */
     osKernelStart();
 
     for(;;);

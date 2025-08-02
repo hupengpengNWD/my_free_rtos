@@ -40,123 +40,151 @@ typedef struct {
 
 // 引脚映射表（基于 LQFP64 封装）
 static const PwmPinMap pin_map[] = {
-    { // TIM1
-        TIM1,
-        {
-            { // Set 0
-                TIM1,
-                {GPIOA, GPIO_PIN_8,  GPIO_AF2_TIM1},
-                {GPIOA, GPIO_PIN_9,  GPIO_AF2_TIM1},
-                {GPIOA, GPIO_PIN_10, GPIO_AF2_TIM1},
-                {GPIOA, GPIO_PIN_11, GPIO_AF2_TIM1},
-                {GPIOA, GPIO_PIN_7,  GPIO_AF2_TIM1},
-                {GPIOB, GPIO_PIN_0,  GPIO_AF2_TIM1},
-                {GPIOB, GPIO_PIN_1,  GPIO_AF2_TIM1},
-                {GPIOB, GPIO_PIN_12, GPIO_AF2_TIM1},
-                TIM1_UP_TIM16_IRQn
+    [0] = {
+        .tim_instance = TIM1,
+        .sets = {
+            [0] = {
+                .tim_instance = TIM1,
+                .ch1 = {GPIOA, GPIO_PIN_8,  GPIO_AF2_TIM1},
+                .ch2 = {GPIOA, GPIO_PIN_9,  GPIO_AF2_TIM1},
+                .ch3 = {GPIOA, GPIO_PIN_10, GPIO_AF2_TIM1},
+                .ch4 = {GPIOA, GPIO_PIN_11, GPIO_AF2_TIM1},
+                .ch1n = {GPIOA, GPIO_PIN_7,  GPIO_AF2_TIM1},
+                .ch2n = {GPIOB, GPIO_PIN_0,  GPIO_AF2_TIM1},
+                .ch3n = {GPIOB, GPIO_PIN_1,  GPIO_AF2_TIM1},
+                .ch4n = {GPIOB, GPIO_PIN_12, GPIO_AF2_TIM1},
+                .irq = TIM1_UP_TIM16_IRQn
             },
-            { // Set 1
-                TIM1,
-                {GPIOB, GPIO_PIN_13, GPIO_AF2_TIM1},
-                {GPIOB, GPIO_PIN_14, GPIO_AF2_TIM1},
-                {GPIOB, GPIO_PIN_15, GPIO_AF2_TIM1},
-                {GPIOA, GPIO_PIN_11, GPIO_AF2_TIM1},
-                {GPIOA, GPIO_PIN_7,  GPIO_AF2_TIM1},
-                {GPIOB, GPIO_PIN_0,  GPIO_AF2_TIM1},
-                {GPIOB, GPIO_PIN_1,  GPIO_AF2_TIM1},
-                {GPIOB, GPIO_PIN_12, GPIO_AF2_TIM1},
-                TIM1_UP_TIM16_IRQn
+            [1] = {
+                .tim_instance = TIM1,
+                .ch1 = {GPIOB, GPIO_PIN_13, GPIO_AF2_TIM1},
+                .ch2 = {GPIOB, GPIO_PIN_14, GPIO_AF2_TIM1},
+                .ch3 = {GPIOB, GPIO_PIN_15, GPIO_AF2_TIM1},
+                .ch4 = {GPIOA, GPIO_PIN_11, GPIO_AF2_TIM1},
+                .ch1n = {GPIOA, GPIO_PIN_7,  GPIO_AF2_TIM1},
+                .ch2n = {GPIOB, GPIO_PIN_0,  GPIO_AF2_TIM1},
+                .ch3n = {GPIOB, GPIO_PIN_1,  GPIO_AF2_TIM1},
+                .ch4n = {GPIOB, GPIO_PIN_12, GPIO_AF2_TIM1},
+                .irq = TIM1_UP_TIM16_IRQn
             }
         }
     },
-    { // TIM2
-        TIM2,
-        {
-            { // Set 0
-                TIM2,
-                {GPIOA, GPIO_PIN_0,  GPIO_AF1_TIM2},
-                {GPIOA, GPIO_PIN_1,  GPIO_AF1_TIM2},
-                {GPIOA, GPIO_PIN_2,  GPIO_AF1_TIM2},
-                {GPIOA, GPIO_PIN_3,  GPIO_AF1_TIM2},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                TIM2_IRQn
+    [1] = {
+        .tim_instance = TIM2,
+        .sets = {
+            [0] = {
+                .tim_instance = TIM2,
+                .ch1 = {GPIOA, GPIO_PIN_0,  GPIO_AF1_TIM2},
+                .ch2 = {GPIOA, GPIO_PIN_1,  GPIO_AF1_TIM2},
+                .ch3 = {GPIOA, GPIO_PIN_2,  GPIO_AF1_TIM2},
+                .ch4 = {GPIOA, GPIO_PIN_3,  GPIO_AF1_TIM2},
+                .ch1n = {NULL, 0, 0},
+                .ch2n = {NULL, 0, 0},
+                .ch3n = {NULL, 0, 0},
+                .ch4n = {NULL, 0, 0},
+                .irq = TIM2_IRQn
             },
-            { // Set 1
-                TIM2,
-                {GPIOA, GPIO_PIN_5,  GPIO_AF1_TIM2},
-                {GPIOB, GPIO_PIN_3,  GPIO_AF1_TIM2},
-                {GPIOB, GPIO_PIN_10, GPIO_AF1_TIM2},
-                {GPIOB, GPIO_PIN_11, GPIO_AF1_TIM2},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                TIM2_IRQn
+            [1] = {
+                .tim_instance = TIM2,
+                .ch1 = {GPIOA, GPIO_PIN_5,  GPIO_AF1_TIM2},
+                .ch2 = {GPIOB, GPIO_PIN_3,  GPIO_AF1_TIM2},
+                .ch3 = {GPIOB, GPIO_PIN_10, GPIO_AF1_TIM2},
+                .ch4 = {GPIOB, GPIO_PIN_11, GPIO_AF1_TIM2},
+                .ch1n = {NULL, 0, 0},
+                .ch2n = {NULL, 0, 0},
+                .ch3n = {NULL, 0, 0},
+                .ch4n = {NULL, 0, 0},
+                .irq = TIM2_IRQn
             }
         }
     },
-    { // TIM3
-        TIM3,
-        {
-            { // Set 0
-                TIM3,
-                {GPIOA, GPIO_PIN_6,  GPIO_AF2_TIM3},
-                {GPIOA, GPIO_PIN_7,  GPIO_AF2_TIM3},
-                {GPIOB, GPIO_PIN_0,  GPIO_AF2_TIM3},
-                {GPIOB, GPIO_PIN_1,  GPIO_AF2_TIM3},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                TIM3_IRQn
+    [2] = {
+        .tim_instance = TIM3,
+        .sets = {
+            [0] = {
+                .tim_instance = TIM3,
+                .ch1 = {GPIOA, GPIO_PIN_6,  GPIO_AF2_TIM3},
+                .ch2 = {GPIOA, GPIO_PIN_7,  GPIO_AF2_TIM3},
+                .ch3 = {GPIOB, GPIO_PIN_0,  GPIO_AF2_TIM3},
+                .ch4 = {GPIOB, GPIO_PIN_1,  GPIO_AF2_TIM3},
+                .ch1n = {NULL, 0, 0},
+                .ch2n = {NULL, 0, 0},
+                .ch3n = {NULL, 0, 0},
+                .ch4n = {NULL, 0, 0},
+                .irq = TIM3_IRQn
             },
-            { // Set 1
-                TIM3,
-                {GPIOB, GPIO_PIN_4,  GPIO_AF2_TIM3},
-                {GPIOB, GPIO_PIN_5,  GPIO_AF2_TIM3},
-                {GPIOC, GPIO_PIN_8,  GPIO_AF2_TIM3},
-                {GPIOC, GPIO_PIN_9,  GPIO_AF2_TIM3},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                TIM3_IRQn
+            [1] = {
+                .tim_instance = TIM3,
+                .ch1 = {GPIOB, GPIO_PIN_4,  GPIO_AF2_TIM3},
+                .ch2 = {GPIOB, GPIO_PIN_5,  GPIO_AF2_TIM3},
+                .ch3 = {GPIOC, GPIO_PIN_8,  GPIO_AF2_TIM3},
+                .ch4 = {GPIOC, GPIO_PIN_9,  GPIO_AF2_TIM3},
+                .ch1n = {NULL, 0, 0},
+                .ch2n = {NULL, 0, 0},
+                .ch3n = {NULL, 0, 0},
+                .ch4n = {NULL, 0, 0},
+                .irq = TIM3_IRQn
             }
         }
     },
-    { // TIM4
-        TIM4,
-        {
-            { // Set 0
-                TIM4,
-                {GPIOB, GPIO_PIN_6,  GPIO_AF2_TIM4},
-                {GPIOB, GPIO_PIN_7,  GPIO_AF2_TIM4},
-                {GPIOB, GPIO_PIN_8,  GPIO_AF2_TIM4},
-                {GPIOB, GPIO_PIN_9,  GPIO_AF2_TIM4},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                TIM4_IRQn
+    [3] = {
+        .tim_instance = TIM4,
+        .sets = {
+            [0] = {
+                .tim_instance = TIM4,
+                .ch1 = {GPIOB, GPIO_PIN_6,  GPIO_AF2_TIM4},
+                .ch2 = {GPIOB, GPIO_PIN_7,  GPIO_AF2_TIM4},
+                .ch3 = {GPIOB, GPIO_PIN_8,  GPIO_AF2_TIM4},
+                .ch4 = {GPIOB, GPIO_PIN_9,  GPIO_AF2_TIM4},
+                .ch1n = {NULL, 0, 0},
+                .ch2n = {NULL, 0, 0},
+                .ch3n = {NULL, 0, 0},
+                .ch4n = {NULL, 0, 0},
+                .irq = TIM4_IRQn
             },
-            { // Set 1
-                TIM4,
-                {GPIOD, GPIO_PIN_12, GPIO_AF2_TIM4},
-                {GPIOD, GPIO_PIN_13, GPIO_AF2_TIM4},
-                {GPIOD, GPIO_PIN_14, GPIO_AF2_TIM4},
-                {GPIOD, GPIO_PIN_15, GPIO_AF2_TIM4},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                {NULL, 0, 0},
-                TIM4_IRQn
+            [1] = {
+                .tim_instance = TIM4,
+                .ch1 = {GPIOD, GPIO_PIN_12, GPIO_AF2_TIM4},
+                .ch2 = {GPIOD, GPIO_PIN_13, GPIO_AF2_TIM4},
+                .ch3 = {GPIOD, GPIO_PIN_14, GPIO_AF2_TIM4},
+                .ch4 = {GPIOD, GPIO_PIN_15, GPIO_AF2_TIM4},
+                .ch1n = {NULL, 0, 0},
+                .ch2n = {NULL, 0, 0},
+                .ch3n = {NULL, 0, 0},
+                .ch4n = {NULL, 0, 0},
+                .irq = TIM4_IRQn
             }
         }
     },
-    { NULL, {{0}} } // 结束标志
+    [4] = {
+        .tim_instance = NULL,
+        .sets = {
+            [0] = {
+                .tim_instance = NULL,
+                .ch1 = {NULL, 0, 0},
+                .ch2 = {NULL, 0, 0},
+                .ch3 = {NULL, 0, 0},
+                .ch4 = {NULL, 0, 0},
+                .ch1n = {NULL, 0, 0},
+                .ch2n = {NULL, 0, 0},
+                .ch3n = {NULL, 0, 0},
+                .ch4n = {NULL, 0, 0},
+                .irq = 0
+            },
+            [1] = {
+                .tim_instance = NULL,
+                .ch1 = {NULL, 0, 0},
+                .ch2 = {NULL, 0, 0},
+                .ch3 = {NULL, 0, 0},
+                .ch4 = {NULL, 0, 0},
+                .ch1n = {NULL, 0, 0},
+                .ch2n = {NULL, 0, 0},
+                .ch3n = {NULL, 0, 0},
+                .ch4n = {NULL, 0, 0},
+                .irq = 0
+            }
+        }
+    }
 };
 
 // 全局变量
@@ -535,8 +563,11 @@ et_pwmDmaError drv_timer_pwm_create(st_timer_pwm_ptr ptr, TIM_TypeDef* tim_insta
   * @param  id: PWM ID
   * @retval 错误码
   */
-et_pwmDmaError drv_timer_pwm_hw_init(TIM_TypeDef* tim_instance, uint32_t pwm_freq, uint8_t pin_set_index,
-                                     uint8_t channel, et_PwmDma_id id) {
+et_pwmDmaError drv_timer_pwm_hw_init(TIM_TypeDef* tim_instance, 
+                                     uint32_t pwm_freq, 
+                                     uint8_t pin_set_index,
+                                     uint8_t channel, 
+                                     et_PwmDma_id id) {
     if (tim_instance == NULL) {
         last_error = PWM_DMA_ERROR_INVALID_TIM;
         return last_error;

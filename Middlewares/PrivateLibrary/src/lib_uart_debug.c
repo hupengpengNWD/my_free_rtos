@@ -60,9 +60,10 @@ void lib_debug_protocol_initialize(st_debug_protocol_ptr ptr, uint32_t baudrate,
         ptr->set_baudrate(ptr->uart_dma_ptr, baudrate);
     }
     
-    if (ptr->enable_interrupts) {
-        ptr->enable_interrupts(ptr->uart_dma_ptr);
-    }
+    // // 使能中断
+    // if (ptr->enable_interrupts) {
+    //     ptr->enable_interrupts(ptr->uart_dma_ptr);
+    // }
     
     // 注册回调函数
     if (ptr->register_idle_callback) {
@@ -71,6 +72,11 @@ void lib_debug_protocol_initialize(st_debug_protocol_ptr ptr, uint32_t baudrate,
     
     if (ptr->register_error_callback) {
         ptr->register_error_callback(ptr->uart_dma_ptr, debug_protocol_error_callback, ptr);
+    }
+
+    // 使能中断
+    if (ptr->enable_interrupts) {
+        ptr->enable_interrupts(ptr->uart_dma_ptr);
     }
     
     // 启动接收

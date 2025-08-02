@@ -29,12 +29,12 @@ uint32_t lib_timer_pwm_global_frequency = PWM_DEFAULT_FREQUENCY;
 
 // 错误信息字符串
 static const char* error_strings[] = {
-    "无错误",
-    "无效占空比",
-    "无效频率",
-    "无效通道",
-    "硬件错误",
-    "未初始化"
+    "No Error",                    // 无错误
+    "Invalid Duty Cycle",          // 无效占空比
+    "Invalid Frequency",           // 无效频率
+    "Invalid Channel",             // 无效通道
+    "Hardware Error",              // 硬件错误
+    "Not Initialized"              // 未初始化
 };
 
 /**
@@ -380,7 +380,7 @@ const char* lib_timer_pwm_get_error_string(PwmProtocolError error) {
     if (error < sizeof(error_strings) / sizeof(error_strings[0])) {
         return error_strings[error];
     }
-    return "未知错误";
+    return "Unknown Error";  // 未知错误
 }
 
 // 包装函数 - 用于匹配函数指针类型

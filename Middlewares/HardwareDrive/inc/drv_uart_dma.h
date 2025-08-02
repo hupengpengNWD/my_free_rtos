@@ -99,7 +99,13 @@ typedef struct uart_dma {
     UartRxCompleteCallback rx_complete_callback;   /*!< 接收完成回调函数指针，DMA接收完成时调用 */
     UartIdleCallback idle_callback;               /*!< 空闲中断回调函数指针，UART空闲时调用，用于处理不定长数据 */
     UartErrorCallback error_callback;             /*!< 错误回调函数指针，UART或DMA错误时调用 */
-    void* callback_arg;                           /*!< 回调函数的用户参数指针，传递给所有回调函数 */
+    
+    // 独立的回调参数
+    void* tx_complete_arg;                        /*!< 发送完成回调函数的用户参数指针 */
+    void* rx_complete_arg;                        /*!< 接收完成回调函数的用户参数指针 */
+    void* idle_arg;                               /*!< 空闲中断回调函数的用户参数指针 */
+    void* error_arg;                              /*!< 错误回调函数的用户参数指针 */
+    void* callback_arg;                           /*!< 回调函数的用户参数指针，传递给所有回调函数（保持向后兼容） */
 
     // 硬件操作函数指针
     void (*send)(st_uart_dma_ptr, uint8_t*, uint32_t);      /*!< 发送数据函数指针，通过DMA发送指定长度的数据 */
@@ -142,6 +148,7 @@ void drv_uart_receive_impl(void* uart_dma_ptr);
 void drv_uart_set_baudrate_impl(void* uart_dma_ptr, uint32_t baudrate);
 void drv_uart_set_parity_impl(void* uart_dma_ptr, uint8_t parity);
 void drv_uart_enable_interrupts_impl(void* uart_dma_ptr);
+void drv_uart_disable_interrupts_impl(void* uart_dma_ptr);
 uint8_t drv_uart_get_id_impl(void* uart_dma_ptr);
 void* drv_uart_get_hw_ptr_impl(void* uart_dma_ptr);
 uint8_t* drv_uart_get_rx_buffer_impl(void* uart_dma_ptr);

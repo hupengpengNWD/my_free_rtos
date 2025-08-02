@@ -29,7 +29,7 @@ const osThreadAttr_t maintain_task_attributes = {
 static bool maintain_init_flag = false;
 
 // 维护协议实例
-static st_debug_protocol maintain_protocol_obj;
+static st_debug_protocol uart_debug_obj;
 
 // 维护命令队列
 static QueueHandle_t command_queue = NULL;
@@ -328,8 +328,8 @@ void maintain_task_func(void *argument) {
         maintain_counter++;
         if (maintain_counter % 100 == 0) {
             // 每1秒打印一次（100 * 10ms = 1s）
-            MODULE_LOG_INFO(&uart_log_obj, "testtesttesttesttest");
-            MODULE_LOG_INFO(&uart_log_obj, "TESTTESTTESTTESTTEST");
+            // MODULE_LOG_INFO(&uart_log_obj, "testtesttesttesttest");
+            // MODULE_LOG_INFO(&uart_log_obj, "TESTTESTTESTTESTTEST");
             // 模拟不同级别的维护信息
             if (maintain_counter % 500 == 0) {
                 // 每5秒打印一次维护信息
@@ -338,20 +338,20 @@ void maintain_task_func(void *argument) {
         }
         
         // 处理维护协议
-        maintain_protocol_obj.process(&maintain_protocol_obj);
+        uart_debug_obj.process(&uart_debug_obj);
         
         // 检查是否有命令就绪
-        if (maintain_protocol_obj.is_cmd_ready(&maintain_protocol_obj)) {
+        if (uart_debug_obj.is_cmd_ready(&uart_debug_obj)) {
             // 获取命令数据
             uint8_t cmd_data[DEBUG_MAX_CMD_LEN];
             uint32_t cmd_len;
-            maintain_protocol_obj.get_cmd(&maintain_protocol_obj, cmd_data, &cmd_len);
+            uart_debug_obj.get_cmd(&uart_debug_obj, cmd_data, &cmd_len);
             if (cmd_len > 0) {
                 // 处理命令
                 maintain_process_command((char*)cmd_data);
             }
             // 清除命令
-            maintain_protocol_obj.clear_cmd(&maintain_protocol_obj);
+            uart_debug_obj.clear_cmd(&uart_debug_obj);
         }
         
         // 处理命令队列中的命令
@@ -397,35 +397,43 @@ void maintain_task_func(void *argument) {
  * @return void
  */
 void maintain_task_init(void) {
+
+    for(volatile int i = 0; i < 1000; i++) {
+        __NOP();
+    }
+
     // 初始化 UART DMA 实例
     drv_uart_dma_create(&uart_maintain_dma_obj, USART2, Uart1);
 
     // 配置维护协议模块的硬件相关函数指针
-    maintain_protocol_obj.uart_dma_ptr = &uart_maintain_dma_obj;
-    maintain_protocol_obj.send = drv_uart_send_impl;
-    maintain_protocol_obj.receive = drv_uart_receive_impl;
-    maintain_protocol_obj.set_baudrate = drv_uart_set_baudrate_impl;
-    maintain_protocol_obj.enable_interrupts = drv_uart_enable_interrupts_impl;
-    maintain_protocol_obj.get_rx_buffer = drv_uart_get_rx_buffer_impl;
-    maintain_protocol_obj.register_idle_callback = drv_uart_register_idle_callback_impl;
-    maintain_protocol_obj.register_error_callback = drv_uart_register_error_callback_impl;
-    maintain_protocol_obj.register_tx_complete_callback = drv_uart_register_tx_complete_callback_impl;
+    uart_debug_obj.uart_dma_ptr = &uart_maintain_dma_obj;
+    uart_debug_obj.send = drv_uart_send_impl;
+    uart_debug_obj.receive = drv_uart_receive_impl;
+    uart_debug_obj.set_baudrate = drv_uart_set_baudrate_impl;
+    uart_debug_obj.enable_interrupts = drv_uart_enable_interrupts_impl;
+    uart_debug_obj.disable_interrupts = drv_uart_disable_interrupts_impl;
+    uart_debug_obj.get_rx_buffer = drv_uart_get_rx_buffer_impl;
+    uart_debug_obj.register_idle_callback = drv_uart_register_idle_callback_impl;
+    uart_debug_obj.register_error_callback = drv_uart_register_error_callback_impl;
+    uart_debug_obj.register_tx_complete_callback = drv_uart_register_tx_complete_callback_impl;
 
     // 配置维护协议模块的协议接口函数指针
-    maintain_protocol_obj.configure = lib_debug_protocol_configure;
-    maintain_protocol_obj.initialize = lib_debug_protocol_initialize;
-    maintain_protocol_obj.process = lib_debug_protocol_process;
-    maintain_protocol_obj.send_data = lib_debug_protocol_send_data;
-    maintain_protocol_obj.is_cmd_ready = lib_debug_protocol_is_cmd_ready;
-    maintain_protocol_obj.get_cmd = lib_debug_protocol_get_cmd;
-    maintain_protocol_obj.clear_cmd = lib_debug_protocol_clear_cmd;
+    uart_debug_obj.configure = lib_debug_protocol_configure;
+    uart_debug_obj.initialize = lib_debug_protocol_initialize;
+    uart_debug_obj.process = lib_debug_protocol_process;
+    uart_debug_obj.send_data = lib_debug_protocol_send_data;
+    uart_debug_obj.is_cmd_ready = lib_debug_protocol_is_cmd_ready;
+    uart_debug_obj.get_cmd = lib_debug_protocol_get_cmd;
+    uart_debug_obj.clear_cmd = lib_debug_protocol_clear_cmd;
 
     // 配置和初始化维护协议
-    maintain_protocol_obj.configure(&maintain_protocol_obj);
-    maintain_protocol_obj.initialize(&maintain_protocol_obj, 
+    uart_debug_obj.configure(&uart_debug_obj);
+    uart_debug_obj.initialize(&uart_debug_obj, 
                                      UART_DMA_DEFAULT_BAUDRATE, 
                                      maintain_protocol_callback, 
                                      NULL);
+    
+    
 
     // 配置日志模块的硬件抽象层
     uart_log_obj.uart_dma_ptr = &uart_maintain_dma_obj;

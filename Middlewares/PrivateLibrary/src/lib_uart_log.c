@@ -24,7 +24,11 @@ static const char* get_log_prefix(log_level_t level);
 static void extract_filename(const char* full_path, char* filename, size_t max_len);
 
 
-/* 静态发送完成回调函数 */
+/**
+ * @brief UART发送完成回调函数
+ * @param uart_ptr UART实例指针
+ * @param arg 指向st_uart_log_ptr实例的指针
+ */
 static void uart_log_tx_complete_callback(void* uart_ptr, void* arg) {
     st_uart_log_ptr log_ptr = (st_uart_log_ptr)arg;
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;

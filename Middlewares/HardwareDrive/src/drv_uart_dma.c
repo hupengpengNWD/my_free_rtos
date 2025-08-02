@@ -261,6 +261,7 @@ static void drv_uart_dma_enable_interrupts(st_uart_dma_ptr ptr) {
 static void drv_uart_dma_disable_interrupts(st_uart_dma_ptr ptr) {
     if (ptr->uart_ptr == NULL) return;
     __HAL_UART_DISABLE_IT(ptr->uart_ptr, UART_IT_IDLE);
+    __HAL_UART_DISABLE_IT(ptr->uart_ptr, UART_IT_TC);  // 禁用发送完成中断
     if (ptr->dma_tx_ptr && ptr->dma_tx_ptr->Instance) {
         IRQn_Type tx_irq = (ptr->dma_tx_ptr->Instance == DMA1_Channel1) ? DMA1_Channel1_IRQn :
                            (ptr->dma_tx_ptr->Instance == DMA1_Channel2) ? DMA1_Channel2_IRQn :
@@ -347,7 +348,13 @@ static void drv_uart_dma_configure(st_uart_dma_ptr ptr) {
     ptr->rx_complete_callback = NULL;
     ptr->idle_callback = NULL;
     ptr->error_callback = NULL;
-    ptr->callback_arg = NULL;
+    
+    // 初始化独立的回调参数为NULL
+    ptr->tx_complete_arg = NULL;
+    ptr->rx_complete_arg = NULL;
+    ptr->idle_arg = NULL;
+    ptr->error_arg = NULL;
+    ptr->callback_arg = NULL;  // 保持向后兼容
 }
 
 /**
@@ -363,7 +370,7 @@ static void drv_uart_dma_register_tx_complete_callback(st_uart_dma_ptr ptr,
                                                        UartTxCompleteCallback tx_complete_callback, 
                                                        void* arg) {
     ptr->tx_complete_callback = tx_complete_callback;
-    ptr->callback_arg = arg;
+    ptr->tx_complete_arg = arg;  // 使用独立的发送完成回调参数
 }
 
 /**
@@ -379,7 +386,7 @@ static void drv_uart_dma_register_rx_complete_callback(st_uart_dma_ptr ptr,
                                                        UartRxCompleteCallback rx_complete_callback, 
                                                        void* arg) {
     ptr->rx_complete_callback = rx_complete_callback;
-    ptr->callback_arg = arg;
+    ptr->rx_complete_arg = arg;  // 使用独立的接收完成回调参数
 }
 
 /**
@@ -395,7 +402,7 @@ static void drv_uart_dma_register_idle_callback(st_uart_dma_ptr ptr,
                                                 UartIdleCallback idle_callback, 
                                                 void* arg) {
     ptr->idle_callback = idle_callback;
-    ptr->callback_arg = arg;
+    ptr->idle_arg = arg;  // 使用独立的空闲中断回调参数
 }
 
 /**
@@ -411,7 +418,7 @@ static void drv_uart_dma_register_error_callback(st_uart_dma_ptr ptr,
                                                  UartErrorCallback callback, 
                                                  void* arg) {
     ptr->error_callback = callback;
-    ptr->callback_arg = arg;
+    ptr->error_arg = arg;  // 使用独立的错误回调参数
 }
 
 /**
@@ -742,7 +749,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef* huart) {
     for (ptr = uart_dma_hendle_ptr; ptr; ptr = ptr->next) {
         if (ptr->uart_ptr == huart) {
             if (ptr->tx_complete_callback) {
-                ptr->tx_complete_callback(ptr, ptr->callback_arg);
+                ptr->tx_complete_callback(ptr, ptr->tx_complete_arg);
             }
             break;
         }
@@ -761,7 +768,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
     for (ptr = uart_dma_hendle_ptr; ptr; ptr = ptr->next) {
         if (ptr->uart_ptr == huart) {
             if (ptr->rx_complete_callback) {
-                ptr->rx_complete_callback(ptr, ptr->callback_arg);
+                ptr->rx_complete_callback(ptr, ptr->rx_complete_arg);
             }
             break;
         }
@@ -808,7 +815,7 @@ void HAL_UART_IDLECallback(UART_HandleTypeDef* huart) {
                 ptr->rx_len = new_data_len;
                 
                 // 调用空闲回调函数，传递本次新接收的数据长度和起始位置
-                ptr->idle_callback(ptr, new_data_len, new_data_start, ptr->callback_arg);
+                ptr->idle_callback(ptr, new_data_len, new_data_start, ptr->idle_arg);
             }
             break;
         }
@@ -828,7 +835,7 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef* huart) {
     for (ptr = uart_dma_hendle_ptr; ptr; ptr = ptr->next) {
         if (ptr->uart_ptr == huart) {
             if (ptr->error_callback) {
-                ptr->error_callback(ptr, huart->ErrorCode, ptr->callback_arg);
+                ptr->error_callback(ptr, huart->ErrorCode, ptr->error_arg);
             }
             break;
         }
@@ -974,6 +981,12 @@ void drv_uart_enable_interrupts_impl(void* uart_dma_ptr) {
     st_uart_dma_ptr ptr = (st_uart_dma_ptr)uart_dma_ptr;
     if (ptr && ptr->enable_interrupts) {
         ptr->enable_interrupts(ptr);
+    }
+}
+void drv_uart_disable_interrupts_impl(void* uart_dma_ptr) {
+    st_uart_dma_ptr ptr = (st_uart_dma_ptr)uart_dma_ptr;
+    if (ptr && ptr->disable_interrupts) {
+        ptr->disable_interrupts(ptr);
     }
 }
 uint8_t drv_uart_get_id_impl(void* uart_dma_ptr) {
