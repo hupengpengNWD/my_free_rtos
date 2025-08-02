@@ -1,0 +1,8 @@
+---
+CompileFlags:
+  Add: [
+    
+  ]
+  Remove: [-Werror]
+Diagnostics:
+  Suppress: [pp_including_mainfile_in_preamble]

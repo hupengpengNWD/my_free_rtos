@@ -1,0 +1,80 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "./build.sh",
+            "args": ["${input:buildType}"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "./build.sh",
+            "args": ["clean"]
+        },
+        {
+            "label": "generate-bin",
+            "type": "shell",
+            "command": "/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/bin/arm-none-eabi-objcopy",
+            "args": [
+                "-O", "binary",
+                "${workspaceFolder}/build/MY_FREE_RTOS.elf",
+                "${workspaceFolder}/build/MY_FREE_RTOS.bin"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Generate MY_FREE_RTOS.bin from MY_FREE_RTOS.elf",
+            "dependsOn": ["build"]
+        },
+        {
+            "label": "flash-bin",
+            "type": "shell",
+            "command": "/usr/local/bin/openocd",
+            "args": [
+                "-f", "${workspaceFolder}/openocd.cfg",
+                "-c", "init",
+                "-c", "reset init",
+                "-c", "flash erase_sector 0 0 last",
+                "-c", "program ${workspaceFolder}/build/MY_FREE_RTOS.bin 0x08000000 verify",
+                "-c", "reset run",
+                "-c", "shutdown"
+            ],
+            // "dependsOn": ["generate-bin"],
+            // "group": "build",
+            // "problemMatcher": [],
+            // "detail": "Generate and flash MY_FREE_RTOS.bin to STM32 using OpenOCD"
+        },
+        {
+            "label": "flash-elf",
+            "type": "shell",
+            "command": "/usr/local/bin/openocd",
+            "args": [
+                "-f", "${workspaceFolder}/openocd.cfg",
+                "-c", "init",
+                "-c", "reset init",
+                "-c", "flash erase_sector 0 0 last",
+                "-c", "program ${workspaceFolder}/build/MY_FREE_RTOS.elf verify",
+                "-c", "reset run",
+                "-c", "shutdown"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "dependsOn": ["build"],
+            "detail": "Flash MY_FREE_RTOS.elf to STM32 using OpenOCD"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "buildType",
+            "type": "pickString",
+            "description": "Select build type",
+            "options": ["Debug", "Release", "RelWithDebInfo", "MinSizeRel"],
+            "default": "Debug"
+        }
+    ]
+}

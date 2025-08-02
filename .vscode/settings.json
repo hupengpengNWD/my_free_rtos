@@ -1,0 +1,44 @@
+{
+    /* cortex-debug 配置 */
+    "cortex-debug.armToolchainPath": "/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/bin",
+    "cortex-debug.openocdPath": "/usr/local/bin/openocd",
+
+    /* clangd 配置 */
+    "clangd.path": "/usr/bin/clangd",
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}",
+        "--background-index",
+        "--header-insertion=iwyu",
+        "--completion-style=detailed",
+        "--query-driver=/Applications/ArmGNUToolchain/14.2.rel1/arm-none-eabi/bin/arm-none-eabi-*",
+        "--log=verbose"
+    ],
+
+        /* 隐藏特定文件或文件夹 */
+        "files.exclude": {
+            "**/.git": true,                        /* 隐藏 .git 文件夹 */
+            "**/.DS_Store": true,                   /* 隐藏 macOS 下的 .DS_Store 文件 */
+            "**/node_modules": true,                /* 隐藏 node_modules 文件夹 */
+            "**/dist": true,                        /* 隐藏 dist 文件夹 */
+            "**/*.o": true,                         /* 隐藏所有 .o 文件 */
+            "**/*.a": true,                         /* 隐藏所有 .a 文件 */
+            "**/*.log": true,                       /* 隐藏所有 .log 文件 */
+            // "**/.clangd":true,
+            // "**/.gitignore":true,
+            "**/openocd.cfg":true,
+            "**/.mxproject":true,
+            "**/v1.ioc":true,
+            "**/compile_commands.json":true,
+            "**/build.sh":true,
+            
+        },
+        
+        // /* 控制搜索结果中的文件 */
+        // "search.exclude": {
+        //     "**/*.o": true,                         /* 排除所有 .o 文件 */
+        //     "**/*.a": true,                         /* 排除所有 .a 文件 */
+        //     "**/*.log": true,                       /* 排除所有 .log 文件 */
+        //     "**/.clangd":true
+        // }
+
+}
