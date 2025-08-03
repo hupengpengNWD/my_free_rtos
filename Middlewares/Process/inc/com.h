@@ -33,10 +33,10 @@
 #include "stm32g4xx_hal.h"
 
 #include "drv_uart_dma.h"
-#include "lib_uart_protocol.h"
-// #include "drv_timer_countdown.h"
-#include "lib_soft_timer.h"
 #include "lib_uart_log.h"
+#include "lib_uart_protocol.h"
+#include "lib_soft_timer.h"
+
 
 // 参数权限枚举
 typedef enum {

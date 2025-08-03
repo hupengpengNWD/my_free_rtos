@@ -31,6 +31,7 @@ extern "C" {
 #include "semphr.h"
 #include "cmsis_os.h"
 #include "stm32g4xx_hal.h"
+
 #include "drv_uart_dma.h"
 #include "lib_uart_log.h"
 #include "lib_uart_debug.h"
