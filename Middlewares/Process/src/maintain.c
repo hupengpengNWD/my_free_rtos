@@ -334,8 +334,8 @@ void maintain_task_func(void *argument) {
         maintain_counter++;
         if (maintain_counter % 100 == 0) {
             // 每1秒打印一次（100 * 10ms = 1s）
-            MODULE_LOG_INFO(&uart_log_obj, "testtesttesttesttest");
-            MODULE_LOG_INFO(&uart_log_obj, "TESTTESTTESTTESTTEST");
+            // MODULE_LOG_INFO(&uart_log_obj, "testtesttesttesttest");
+            // MODULE_LOG_INFO(&uart_log_obj, "TESTTESTTESTTESTTEST");
         }
         
         // 处理UART接收的命令（检查命令状态，但不直接处理）
