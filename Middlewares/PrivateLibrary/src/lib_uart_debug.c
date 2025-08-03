@@ -100,15 +100,23 @@ void lib_debug_protocol_process(st_debug_protocol_ptr ptr) {
             if (ptr->cmd_index > 0) {
                 ptr->state = DEBUG_STATE_CMD_READY;
                 ptr->cmd_ready = true;
-                
-                if (ptr->protocol_callback) {
-                    ptr->protocol_callback(ptr, DEBUG_PROTOCOL_ERROR_NONE, ptr->cmd_buffer, ptr->cmd_index, ptr->callback_arg);
-                }
+                // 注意：不要在这里重置状态，让下面的处理逻辑来处理
+            } else {
+                // 如果没有有效数据，重置状态
+                ptr->state = DEBUG_STATE_IDLE;
+                ptr->cmd_index = 0;
             }
-            
-            ptr->state = DEBUG_STATE_IDLE;
-            ptr->cmd_index = 0;
         }
+    }
+    
+    // 检查是否有就绪的命令需要处理
+    if (ptr->cmd_ready && ptr->protocol_callback) {
+        ptr->protocol_callback(ptr, DEBUG_PROTOCOL_ERROR_NONE, ptr->cmd_buffer, ptr->cmd_index, ptr->callback_arg);
+        // 清除命令状态
+        ptr->cmd_ready = false;
+        ptr->cmd_index = 0;
+        memset(ptr->cmd_buffer, 0, DEBUG_MAX_CMD_LEN);
+        ptr->state = DEBUG_STATE_IDLE;
     }
 }
 
@@ -250,16 +258,15 @@ static void debug_protocol_process_received_data(st_debug_protocol_ptr ptr, uint
             if (ptr->cmd_index > 0) {
                 ptr->state = DEBUG_STATE_CMD_READY;
                 ptr->cmd_ready = true;
-                
-                if (ptr->protocol_callback) {
-                    ptr->protocol_callback(ptr, DEBUG_PROTOCOL_ERROR_NONE, ptr->cmd_buffer, ptr->cmd_index, ptr->callback_arg);
-                }
+                // 不在中断中直接调用回调，而是在任务中处理
+                // 立即停止接收新数据，防止命令合并
+                return; // 立即返回，停止处理当前数据块中的后续字符
+            } else {
+                // 如果没有有效命令，重置状态
+                ptr->cmd_index = 0;
+                memset(ptr->cmd_buffer, 0, DEBUG_MAX_CMD_LEN);
+                ptr->state = DEBUG_STATE_IDLE;
             }
-            
-            // 重置状态
-            ptr->cmd_index = 0;
-            memset(ptr->cmd_buffer, 0, DEBUG_MAX_CMD_LEN);
-            ptr->state = DEBUG_STATE_IDLE;
             continue;
         }
         

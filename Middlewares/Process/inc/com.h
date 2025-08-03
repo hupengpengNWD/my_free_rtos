@@ -34,7 +34,8 @@
 
 #include "drv_uart_dma.h"
 #include "lib_uart_protocol.h"
-#include "drv_timer_countdown.h"
+// #include "drv_timer_countdown.h"
+#include "lib_soft_timer.h"
 #include "lib_uart_log.h"
 
 // 参数权限枚举

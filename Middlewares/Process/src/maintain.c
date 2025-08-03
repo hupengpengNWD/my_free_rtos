@@ -76,13 +76,22 @@ void maintain_protocol_callback(void* protocol,
                                uint32_t len, 
                                void* arg) {
     if (error != 0) {
-        MODULE_LOG_WARN(&uart_log_obj, "Maintain protocol error: %d", error);
         return;
     }
-    if (data && len > 0) {
-        // 将接收到的数据作为命令处理
-        char* cmd_line = (char*)data;
-        maintain_process_command(cmd_line);
+    if (data && len > 0 && command_queue != NULL) {
+        // 将命令放入队列，在任务中处理
+        MaintainCommand cmd;
+        strncpy(cmd.cmd_line, (char*)data, DEBUG_MAX_CMD_LEN - 1);
+        cmd.cmd_line[DEBUG_MAX_CMD_LEN - 1] = '\0';
+        cmd.is_valid = true;
+        
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        if (xQueueSendFromISR(command_queue, &cmd, &xHigherPriorityTaskWoken) == pdTRUE) {
+            // 队列发送成功
+        } else {
+            // 队列发送失败，可能是队列满了
+        }
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 }
 
@@ -312,14 +321,7 @@ void maintain_process_command(const char* cmd_line) {
  * @retval None
  */
 void maintain_task_func(void *argument) {
-    // MODULE_LOG_INFO(&uart_log_obj, "Maintain task started successfully");
-    
-    // 发送帮助信息
-    // MODULE_LOG_INFO(&uart_log_obj, "Maintain command format:");
-    // MODULE_LOG_INFO(&uart_log_obj, "  Read parameter: maintain read <parameter_name>");
-    // MODULE_LOG_INFO(&uart_log_obj, "  Write parameter: maintain write <parameter_name> <parameter_value>");
-    // MODULE_LOG_INFO(&uart_log_obj, "  Available parameters: data1, data2, version, status, name, maintain_log_level, manual_log_level, protector_log_level");
-    
+
     // 维护计数器
     static uint32_t maintain_counter = 0;
     
@@ -330,34 +332,16 @@ void maintain_task_func(void *argument) {
             // 每1秒打印一次（100 * 10ms = 1s）
             // MODULE_LOG_INFO(&uart_log_obj, "testtesttesttesttest");
             // MODULE_LOG_INFO(&uart_log_obj, "TESTTESTTESTTESTTEST");
-            // 模拟不同级别的维护信息
-            if (maintain_counter % 500 == 0) {
-                // 每5秒打印一次维护信息
-                MODULE_LOG_DEBUG(&uart_log_obj, "Memory usage check");
-            }
         }
         
-        // 处理维护协议
+        // 处理UART接收的命令（检查命令状态，但不直接处理）
         uart_debug_obj.process(&uart_debug_obj);
         
-        // 检查是否有命令就绪
-        if (uart_debug_obj.is_cmd_ready(&uart_debug_obj)) {
-            // 获取命令数据
-            uint8_t cmd_data[DEBUG_MAX_CMD_LEN];
-            uint32_t cmd_len;
-            uart_debug_obj.get_cmd(&uart_debug_obj, cmd_data, &cmd_len);
-            if (cmd_len > 0) {
-                // 处理命令
-                maintain_process_command((char*)cmd_data);
-            }
-            // 清除命令
-            uart_debug_obj.clear_cmd(&uart_debug_obj);
-        }
-        
-        // 处理命令队列中的命令
+        // 处理命令队列中的命令（包括UART接收和任务发送的命令）
         MaintainCommand cmd;
         if (xQueueReceive(command_queue, &cmd, 0) == pdTRUE) {
             if (cmd.is_valid) {
+                MODULE_LOG_INFO(&uart_log_obj, "Processing command: %s", cmd.cmd_line);
                 maintain_process_command(cmd.cmd_line);
             }
         }
@@ -426,6 +410,13 @@ void maintain_task_init(void) {
     uart_debug_obj.get_cmd = lib_debug_protocol_get_cmd;
     uart_debug_obj.clear_cmd = lib_debug_protocol_clear_cmd;
 
+    // 创建命令队列（必须在回调函数注册之前创建）
+    command_queue = xQueueCreate(10, sizeof(MaintainCommand));
+    if (command_queue == NULL) {
+        // 队列创建失败，输出错误信息
+        // 注意：这里不能使用MODULE_LOG_INFO，因为日志模块可能还没初始化
+    }
+
     // 配置和初始化维护协议
     uart_debug_obj.configure(&uart_debug_obj);
     uart_debug_obj.initialize(&uart_debug_obj, 
@@ -445,9 +436,6 @@ void maintain_task_init(void) {
     
     // 注册日志等级参数的回调函数
     com_param_manager_set_write_callback(0x06, maintain_log_level_write_callback, NULL);
-
-    // 创建命令队列
-    command_queue = xQueueCreate(10, sizeof(MaintainCommand));
     
     // 创建维护任务
     maintain_taskHandle = osThreadNew(maintain_task_func, 
