@@ -12,6 +12,7 @@
 
 #include "maintain.h"
 #include "com.h"
+#include "lib_uart_log.h"
 #include <stdint.h>
 
 // maintain 任务属性
@@ -39,6 +40,8 @@ static st_uart_log uart_log_obj;
 
 // 日志等级变量（供com模块访问）
 uint8_t maintain_log_level = LOG_LEVEL_INFO;
+
+
 
 /**
  * @brief Maintain模块日志等级写回调函数
@@ -206,6 +209,7 @@ void maintain_process_command(const char* cmd_line) {
                     MODULE_LOG_WARN(&uart_log_obj, "Invalid page number, should be > 0");
                     return;
                 }
+
                 maintain_show_parameter_page(page_num);
             } else {
                 MODULE_LOG_WARN(&uart_log_obj, "Invalid parameter subcommand, should be 'help' or 'help page <number>'");
@@ -330,14 +334,14 @@ void maintain_task_func(void *argument) {
         maintain_counter++;
         if (maintain_counter % 100 == 0) {
             // 每1秒打印一次（100 * 10ms = 1s）
-            // MODULE_LOG_INFO(&uart_log_obj, "testtesttesttesttest");
-            // MODULE_LOG_INFO(&uart_log_obj, "TESTTESTTESTTESTTEST");
+            MODULE_LOG_INFO(&uart_log_obj, "testtesttesttesttest");
+            MODULE_LOG_INFO(&uart_log_obj, "TESTTESTTESTTESTTEST");
         }
         
         // 处理UART接收的命令（检查命令状态，但不直接处理）
         uart_debug_obj.process(&uart_debug_obj);
         
-        // 处理命令队列中的命令（包括UART接收和任务发送的命令）
+        // 处理命令队列中的命令（简化处理，移除状态机）
         MaintainCommand cmd;
         if (xQueueReceive(command_queue, &cmd, 0) == pdTRUE) {
             if (cmd.is_valid) {
